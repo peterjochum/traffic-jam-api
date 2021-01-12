@@ -27,7 +27,7 @@ jobs:
         chmod +x ./cc-test-reporter
         ./cc-test-reporter before-build
         go test -coverprofile c.out -v ./...
-        ./cc-test-reporter after-build --exit-code $?
+        ./cc-test-reporter after-build
 
     - name: Generate build files
       uses: thatisuday/go-cross-build@v1
