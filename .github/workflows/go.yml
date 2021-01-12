@@ -7,8 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-
   build:
+    environment: default
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -22,4 +22,18 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run:
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
+        - go test -coverprofile c.out -v ./...
+        - ./cc-test-reporter after-build --exit-code $?
+
+    - name: Generate build files
+      uses: thatisuday/go-cross-build@v1
+      with:
+        platforms: 'linux/amd64, darwin/amd64, windows/amd64'
+        package: ''
+        name: 'traffic-jam-api'
+        compress: 'true'
+        dest: 'dist'
