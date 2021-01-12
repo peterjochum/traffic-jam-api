@@ -22,12 +22,12 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run:
-        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-        - chmod +x ./cc-test-reporter
-        - ./cc-test-reporter before-build
-        - go test -coverprofile c.out -v ./...
-        - ./cc-test-reporter after-build --exit-code $?
+      run: |
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+        ./cc-test-reporter before-build
+        go test -coverprofile c.out -v ./...
+        ./cc-test-reporter after-build --exit-code $?
 
     - name: Generate build files
       uses: thatisuday/go-cross-build@v1
