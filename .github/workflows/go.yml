@@ -11,25 +11,26 @@ jobs:
     environment: default
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.15.1'
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.15
+      - name: Install dependencies
+        run: |
+          go version
+          go get -u golang.org/x/lint/golint
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build .
 
-    - name: Test
-      run: |
-        go test -coverprofile c.out -v ./...
+      - name: Test With Coverage
+        run: go test -v  -coverprofile=coverage.txt -covermode=atomic ./...
 
-    - name: Generate build files
-      uses: thatisuday/go-cross-build@v1
-      with:
-        platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-        package: ''
-        name: 'traffic-jam-api'
-        compress: 'true'
-        dest: 'dist'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+
+      - name: Run Vet & Lint
+        run: |
+          go vet .
+          golint -set_exit_status=1 .
