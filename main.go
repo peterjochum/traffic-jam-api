@@ -8,14 +8,6 @@ import (
 
 	"github.com/peterjochum/traffic-jam-api/internal/app"
 	"github.com/peterjochum/traffic-jam-api/internal/store"
-
-	// WARNING!
-	// Change this to a fully-qualified import path
-	// once you place this file into your project.
-	// For example,
-	//
-	//    sw "github.com/myname/myrepo/swagger"
-	//
 	sw "github.com/peterjochum/traffic-jam-api/internal/swagger"
 )
 
