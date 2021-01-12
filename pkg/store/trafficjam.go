@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/peterjochum/traffic-jam-api/internal/models"
+	"github.com/peterjochum/traffic-jam-api/pkg/models"
 )
 
 // TrafficJamStore has methods to provide backend functions for the TrafficJam-API

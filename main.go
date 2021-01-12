@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/peterjochum/traffic-jam-api/internal/app"
-	"github.com/peterjochum/traffic-jam-api/internal/store"
-	sw "github.com/peterjochum/traffic-jam-api/internal/swagger"
+	"github.com/peterjochum/traffic-jam-api/pkg/app"
+	"github.com/peterjochum/traffic-jam-api/pkg/store"
+	sw "github.com/peterjochum/traffic-jam-api/pkg/swagger"
 )
 
 const (

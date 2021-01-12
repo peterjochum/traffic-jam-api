@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/peterjochum/traffic-jam-api/internal/models"
+	"github.com/peterjochum/traffic-jam-api/pkg/models"
 )
 
 // InMemoryTrafficJamStore allows stores TrafficJams in a map without persistence

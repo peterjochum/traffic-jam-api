@@ -8,8 +8,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/peterjochum/traffic-jam-api/pkg/app"
+
 	"github.com/gorilla/mux"
-	"github.com/peterjochum/traffic-jam-api/internal/app"
 )
 
 // getID parses the TrafficJam id from the url parameters

@@ -6,10 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/peterjochum/traffic-jam-api/pkg/app"
+	"github.com/peterjochum/traffic-jam-api/pkg/models"
+	"github.com/peterjochum/traffic-jam-api/pkg/store"
+
 	"github.com/gorilla/mux"
-	"github.com/peterjochum/traffic-jam-api/internal/app"
-	"github.com/peterjochum/traffic-jam-api/internal/models"
-	"github.com/peterjochum/traffic-jam-api/internal/store"
 )
 
 func TestGetAllTrafficJams(t *testing.T) {
