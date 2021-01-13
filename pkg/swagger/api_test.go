@@ -17,7 +17,8 @@ import (
 const trafficJamAPIRoot = "/api/v1/trafficjam/"
 
 func TestGetAllTrafficJams(t *testing.T) {
-	app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
+	app.TrafficJamStore = store.NewInMemoryTrafficJamStore()
+	store.SeedTrafficJamStore(app.TrafficJamStore)
 
 	req := httptest.NewRequest("GET", trafficJamAPIRoot, nil)
 	rr := httptest.NewRecorder()
@@ -49,7 +50,8 @@ func TestGetAllTrafficJams(t *testing.T) {
 }
 
 func TestDeleteTrafficJam(t *testing.T) {
-	app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
+	app.TrafficJamStore = store.NewInMemoryTrafficJamStore()
+	store.SeedTrafficJamStore(app.TrafficJamStore)
 
 	req := httptest.NewRequest("DELETE", trafficJamAPIRoot+"1", nil)
 	rr := httptest.NewRecorder()
@@ -89,7 +91,8 @@ func TestAddTrafficJam(t *testing.T) {
 
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
+			app.TrafficJamStore = store.NewInMemoryTrafficJamStore()
+			store.SeedTrafficJamStore(app.TrafficJamStore)
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(AddTrafficJam)
 			req := httptest.NewRequest("POST", trafficJamAPIRoot, nil)

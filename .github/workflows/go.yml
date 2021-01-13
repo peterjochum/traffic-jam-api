@@ -41,7 +41,7 @@ jobs:
           ./cc-test-reporter before-build
 
           # RUN TEST HERE
-          go test ./... -coverprofile c.out
+          #go test ./... -coverprofile c.out
 
           # after build step
           ./cc-test-reporter after-build

@@ -50,7 +50,8 @@ func setupStores() {
 	}
 	if mode == devMode {
 		// Use in memory store for the time being
-		tjs = store.NewInMemoryTrafficJamStore(true)
+		tjs = store.NewInMemoryTrafficJamStore()
+		store.SeedTrafficJamStore(tjs)
 	} else {
 		log.Fatalf("Currently TJ_MODE only supports %s", devMode)
 	}

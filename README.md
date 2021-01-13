@@ -1,5 +1,8 @@
 # Traffic Jam API
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/1ee2fe1fcc5e3877f1a7/maintainability)](https://codeclimate.com/github/peterjochum/traffic-jam-api/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/1ee2fe1fcc5e3877f1a7/test_coverage)](https://codeclimate.com/github/peterjochum/traffic-jam-api/test_coverage)
+
 API server for managing traffic jams
 
 ## API documentation
