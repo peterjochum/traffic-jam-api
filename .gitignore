@@ -1,2 +1,10 @@
 # Exclude env file (possibly containing credentials)
 .env
+
+# IDE stuff
+.idea
+.vscode
+
+# Executables
+traffic-jam-api
+traffic-jam-api.exe
