@@ -4,6 +4,7 @@ package swagger
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/peterjochum/traffic-jam-api/pkg/models"
 	"log"
 	"net/http"
 	"strconv"
@@ -20,9 +21,29 @@ func getID(r *http.Request) (int64, error) {
 }
 
 // AddTrafficJam adds a new traffic jam to the store
-func AddTrafficJam(w http.ResponseWriter, _ *http.Request) {
+func AddTrafficJam(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	var jam models.TrafficJam
+	err := json.NewDecoder(r.Body).Decode(&jam)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("could not parse trafficjam from request body"))
+		return
+	}
+
+	_, err = app.TrafficJamStore.GetTrafficJam(jam.ID)
+	if err == nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		msg := fmt.Sprintf("traffic jam %d already exists", jam.ID)
+		_, _ = w.Write([]byte(msg))
+		return
+	}
+
+	// TODO: check if failing here is possible
+	_ = app.TrafficJamStore.AddTrafficJam(jam)
 	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("success"))
 }
 
 // DeleteTrafficJam removes a TrafficJam from the store
@@ -62,12 +83,11 @@ func GetAllTrafficJams(w http.ResponseWriter, _ *http.Request) {
 // GetTrafficJam returns a TrafficJam by id
 func GetTrafficJam(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // PutTrafficJam updates the data of a TrafficJam
 func PutTrafficJam(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -2,6 +2,7 @@ package swagger
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,10 +14,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const trafficJamApiRoot = "/api/v1/trafficjam/"
+
 func TestGetAllTrafficJams(t *testing.T) {
 	app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
 
-	req := httptest.NewRequest("GET", "/api/v1/trafficjam", nil)
+	req := httptest.NewRequest("GET", trafficJamApiRoot, nil)
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(GetAllTrafficJams)
 
@@ -48,7 +51,7 @@ func TestGetAllTrafficJams(t *testing.T) {
 func TestDeleteTrafficJam(t *testing.T) {
 	app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
 
-	req := httptest.NewRequest("DELETE", "/api/v1/trafficjam/1", nil)
+	req := httptest.NewRequest("DELETE", trafficJamApiRoot+"1", nil)
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(DeleteTrafficJam)
 
@@ -72,6 +75,37 @@ func TestDeleteTrafficJam(t *testing.T) {
 }
 
 func TestAddTrafficJam(t *testing.T) {
+	cases := []struct {
+		name        string
+		body        io.Reader
+		eResultCode int
+		eMessage    string
+	}{
+		{"empty body", nil, 400, "could not parse trafficjam from request body"},
+		// TODO: Test malformed body
+		// TODO: Test object exists
+		// TODO: Test success
+	}
+
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(AddTrafficJam)
+			req := httptest.NewRequest("POST", trafficJamApiRoot, nil)
+			handler.ServeHTTP(rr, req)
+
+			if rr.Code != test.eResultCode {
+				t.Errorf("Expected result code %d but got %d",
+					test.eResultCode, rr.Code)
+			}
+
+			if rr.Body.String() != test.eMessage {
+				t.Errorf("Expected response \"%s\" but got \"%s\"",
+					test.eMessage, rr.Body.String())
+			}
+		})
+	}
 
 }
 

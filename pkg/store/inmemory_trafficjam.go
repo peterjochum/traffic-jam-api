@@ -34,8 +34,7 @@ func (i InMemoryTrafficJamStore) AddTrafficJam(jam models.TrafficJam) error {
 
 // GetTrafficJam returns a traffic jam with the specified id
 func (i InMemoryTrafficJamStore) GetTrafficJam(id int64) (models.TrafficJam, error) {
-	val, ok := i.jams[id]
-	if ok {
+	if val, ok := i.jams[id]; ok {
 		return val, nil
 	}
 	return models.TrafficJam{}, errors.New("object not found")
