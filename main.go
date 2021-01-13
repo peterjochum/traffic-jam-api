@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	devMode        = "dev"
-	prodMode       = "prod"
+	devMode = "dev"
+	// prodMode       = "prod"
 	portEnvVarname = "TJ_PORT"
 )
 
@@ -38,9 +38,8 @@ func getServerPort() int {
 			log.Fatalf("%s environment variable should be a port number", portEnvVarname)
 		}
 		return port
-	} else {
-		return 8080
 	}
+	return 8080
 }
 
 func setupStores() {

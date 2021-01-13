@@ -4,10 +4,11 @@ package swagger
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/peterjochum/traffic-jam-api/pkg/models"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/peterjochum/traffic-jam-api/pkg/models"
 
 	"github.com/peterjochum/traffic-jam-api/pkg/app"
 

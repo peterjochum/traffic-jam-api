@@ -7,13 +7,11 @@ API server for managing traffic jams
 The API is available on Swagger Hub:
 [Traffic Jam API](https://app.swaggerhub.com/apis/peterjochum/traffic-jam_api/1.0.0)
 
-
 ## Build
 
 Build the docker image
 
     docker build -t traffic-jam-api:latest .
-
 
 ## Run
 
@@ -23,4 +21,4 @@ Run the server
 
 Test the API
 
-http://localhost:8090/api/v1/trafficjam
+[http://localhost:8090/api/v1/trafficjam](http://localhost:8090/api/v1/trafficjam)

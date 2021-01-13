@@ -14,12 +14,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const trafficJamApiRoot = "/api/v1/trafficjam/"
+const trafficJamAPIRoot = "/api/v1/trafficjam/"
 
 func TestGetAllTrafficJams(t *testing.T) {
 	app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
 
-	req := httptest.NewRequest("GET", trafficJamApiRoot, nil)
+	req := httptest.NewRequest("GET", trafficJamAPIRoot, nil)
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(GetAllTrafficJams)
 
@@ -51,7 +51,7 @@ func TestGetAllTrafficJams(t *testing.T) {
 func TestDeleteTrafficJam(t *testing.T) {
 	app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
 
-	req := httptest.NewRequest("DELETE", trafficJamApiRoot+"1", nil)
+	req := httptest.NewRequest("DELETE", trafficJamAPIRoot+"1", nil)
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(DeleteTrafficJam)
 
@@ -92,7 +92,7 @@ func TestAddTrafficJam(t *testing.T) {
 			app.TrafficJamStore = store.NewInMemoryTrafficJamStore(true)
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(AddTrafficJam)
-			req := httptest.NewRequest("POST", trafficJamApiRoot, nil)
+			req := httptest.NewRequest("POST", trafficJamAPIRoot, nil)
 			handler.ServeHTTP(rr, req)
 
 			if rr.Code != test.eResultCode {
