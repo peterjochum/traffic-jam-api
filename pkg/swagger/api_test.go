@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/peterjochum/traffic-jam-api/pkg/app"
+	"github.com/peterjochum/traffic-jam-api/internal/app"
 	"github.com/peterjochum/traffic-jam-api/pkg/models"
 	"github.com/peterjochum/traffic-jam-api/pkg/store"
 
@@ -17,8 +17,8 @@ import (
 const trafficJamAPIRoot = "/api/v1/trafficjam/"
 
 func TestGetAllTrafficJams(t *testing.T) {
-	app.TrafficJamStore = store.NewInMemoryTrafficJamStore()
-	store.SeedTrafficJamStore(app.TrafficJamStore)
+	app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
+	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
 
 	req := httptest.NewRequest("GET", trafficJamAPIRoot, nil)
 	rr := httptest.NewRecorder()
@@ -50,8 +50,8 @@ func TestGetAllTrafficJams(t *testing.T) {
 }
 
 func TestDeleteTrafficJam(t *testing.T) {
-	app.TrafficJamStore = store.NewInMemoryTrafficJamStore()
-	store.SeedTrafficJamStore(app.TrafficJamStore)
+	app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
+	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
 
 	req := httptest.NewRequest("DELETE", trafficJamAPIRoot+"1", nil)
 	rr := httptest.NewRecorder()
@@ -68,7 +68,7 @@ func TestDeleteTrafficJam(t *testing.T) {
 		t.Errorf("Expected status %d", http.StatusOK)
 	}
 
-	remainingJams := app.TrafficJamStore.ListTrafficJams()
+	remainingJams := app.GlobalTrafficJamStore.ListTrafficJams()
 	eJams := 2
 	aJams := len(remainingJams)
 	if aJams != eJams {
@@ -91,8 +91,8 @@ func TestAddTrafficJam(t *testing.T) {
 
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			app.TrafficJamStore = store.NewInMemoryTrafficJamStore()
-			store.SeedTrafficJamStore(app.TrafficJamStore)
+			app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
+			store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(AddTrafficJam)
 			req := httptest.NewRequest("POST", trafficJamAPIRoot, nil)

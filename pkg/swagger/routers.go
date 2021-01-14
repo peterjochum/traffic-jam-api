@@ -1,9 +1,10 @@
 package swagger
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/peterjochum/traffic-jam-api/pkg/handlers"
 
 	"github.com/gorilla/mux"
 )
@@ -37,24 +38,19 @@ func NewRouter() *mux.Router {
 	return router
 }
 
-// Index contains a welcome page that leads to the API endpoints
-func Index(w http.ResponseWriter, _ *http.Request) {
-	_, _ = fmt.Fprintf(w, "/api/v1/trafficjam")
-}
-
 var routes = Routes{
 	Route{
 		"Index",
 		"GET",
 		"/",
-		Index,
+		handlers.Index,
 	},
 
 	Route{
 		"Index",
 		"GET",
 		"/api/v1/",
-		Index,
+		handlers.Index,
 	},
 
 	Route{
