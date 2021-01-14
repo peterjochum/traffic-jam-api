@@ -10,7 +10,7 @@ import (
 
 	"github.com/peterjochum/traffic-jam-api/pkg/models"
 
-	"github.com/peterjochum/traffic-jam-api/pkg/app"
+	"github.com/peterjochum/traffic-jam-api/internal/app"
 
 	"github.com/gorilla/mux"
 )
@@ -33,7 +33,7 @@ func AddTrafficJam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = app.TrafficJamStore.GetTrafficJam(jam.ID)
+	_, err = app.GlobalTrafficJamStore.GetTrafficJam(jam.ID)
 	if err == nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		msg := fmt.Sprintf("traffic jam %d already exists", jam.ID)
@@ -42,7 +42,7 @@ func AddTrafficJam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: check if failing here is possible
-	_ = app.TrafficJamStore.AddTrafficJam(jam)
+	_ = app.GlobalTrafficJamStore.AddTrafficJam(jam)
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte("success"))
 }
@@ -58,7 +58,7 @@ func DeleteTrafficJam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for object existence
-	_, err = app.TrafficJamStore.GetTrafficJam(id)
+	_, err = app.GlobalTrafficJamStore.GetTrafficJam(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(err.Error()))
@@ -66,7 +66,7 @@ func DeleteTrafficJam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete object
-	app.TrafficJamStore.DeleteTrafficJam(id)
+	app.GlobalTrafficJamStore.DeleteTrafficJam(id)
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(fmt.Sprintf("TrafficJam %d deleted", id)))
 }
@@ -75,7 +75,7 @@ func DeleteTrafficJam(w http.ResponseWriter, r *http.Request) {
 func GetAllTrafficJams(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(app.TrafficJamStore.ListTrafficJams())
+	err := json.NewEncoder(w).Encode(app.GlobalTrafficJamStore.ListTrafficJams())
 	if err != nil {
 		log.Printf("Error encoding traffic jams .. continuing")
 	}

@@ -5,56 +5,29 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 
-	"github.com/peterjochum/traffic-jam-api/pkg/app"
-	"github.com/peterjochum/traffic-jam-api/pkg/store"
+	"github.com/peterjochum/traffic-jam-api/internal/app"
 	sw "github.com/peterjochum/traffic-jam-api/pkg/swagger"
 )
 
-const (
-	devMode = "dev"
-	// prodMode       = "prod"
-	portEnvVarname = "TJ_PORT"
-)
-
+// main wires together components and launches the server
 func main() {
+	// Initialize stores
+	if err := app.SetupStores(); err != nil {
+		log.Fatal(err)
+	}
 
-	setupStores()
-	port := getServerPort()
+	// Get server parameters
+	port, err := app.GetServerPort()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	// Initialize routing
 	router := sw.NewRouter()
+
+	// Start the server
 	log.Printf("Starting TrafficJam server on :%d", port)
 	listenAddress := fmt.Sprintf(":%d", port)
 	log.Fatal(http.ListenAndServe(listenAddress, router))
-}
-
-func getServerPort() int {
-	portFromEnv := os.Getenv(portEnvVarname)
-	if portFromEnv != "" {
-		var err interface{}
-		port, err := strconv.Atoi(portFromEnv)
-		if err != nil {
-			log.Fatalf("%s environment variable should be a port number", portEnvVarname)
-		}
-		return port
-	}
-	return 8080
-}
-
-func setupStores() {
-	var tjs store.TrafficJamStore
-	mode := os.Getenv("TJ_MODE")
-	if mode == "" {
-		mode = devMode
-	}
-	if mode == devMode {
-		// Use in memory store for the time being
-		tjs = store.NewInMemoryTrafficJamStore()
-		store.SeedTrafficJamStore(tjs)
-	} else {
-		log.Fatalf("Currently TJ_MODE only supports %s", devMode)
-	}
-	log.Printf("Using environment %s ..", mode)
-	app.TrafficJamStore = tjs
 }
