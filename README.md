@@ -22,6 +22,9 @@ Run the server
 
     docker run --rm -p 8090:8090 -e TJ_MODE=dev -e TJ_PORT=8090 traffic-jam-api:<tagname>
 
+Get available tags from
+the [pjochum/traffic-jam-api](https://hub.docker.com/repository/docker/pjochum/traffic-jam-api/general).
+
 Test the API
 
 [http://localhost:8090/api/v1/trafficjam](http://localhost:8090/api/v1/trafficjam)
