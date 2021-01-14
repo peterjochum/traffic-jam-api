@@ -33,7 +33,7 @@ func AddTrafficJam(w http.ResponseWriter, r *http.Request) {
 	jam, err := decodeTrafficJamFromRequest(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("could not parse trafficjam from request body"))
+		_, _ = w.Write([]byte("could not parse traffic jam from request body"))
 		return
 	}
 
@@ -130,6 +130,7 @@ func PutTrafficJam(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte("could not parse body"))
+		return
 	}
 
 	if err := app.GlobalTrafficJamStore.UpdateTrafficJam(id, *jam); err != nil {
