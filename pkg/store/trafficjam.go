@@ -11,6 +11,7 @@ type TrafficJamStore interface {
 	UpdateTrafficJam(id int64, jam models.TrafficJam) error
 	DeleteTrafficJam(id int64)
 	ListTrafficJams() []models.TrafficJam
+	Total() int64
 }
 
 // SeedTrafficJamStore inserts a handful of test TrafficJam objects

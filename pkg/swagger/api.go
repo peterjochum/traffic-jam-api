@@ -82,9 +82,23 @@ func GetAllTrafficJams(w http.ResponseWriter, _ *http.Request) {
 }
 
 // GetTrafficJam returns a TrafficJam by id
-func GetTrafficJam(w http.ResponseWriter, _ *http.Request) {
+func GetTrafficJam(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusNoContent)
+	id, err := getID(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("unable to parse id"))
+		return
+	}
+
+	tj, err := app.GlobalTrafficJamStore.GetTrafficJam(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(tj)
 }
 
 // PutTrafficJam updates the data of a TrafficJam
