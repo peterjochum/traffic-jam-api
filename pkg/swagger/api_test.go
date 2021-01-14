@@ -17,6 +17,7 @@ import (
 
 const trafficJamAPIRoot = "/api/v1/trafficjam/"
 
+// APITestCase encapsulates test input/output
 type APITestCase struct {
 	name           string
 	id             string
