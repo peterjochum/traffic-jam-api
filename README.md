@@ -1,5 +1,7 @@
 # Traffic Jam API
 
+![Jam glass showing two cars - traffic jam](static/logo.svg)
+
 [![Maintainability](https://api.codeclimate.com/v1/badges/1ee2fe1fcc5e3877f1a7/maintainability)](https://codeclimate.com/github/peterjochum/traffic-jam-api/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/1ee2fe1fcc5e3877f1a7/test_coverage)](https://codeclimate.com/github/peterjochum/traffic-jam-api/test_coverage)
 
@@ -25,3 +27,24 @@ Run the server
 Test the API
 
 [http://localhost:8090/api/v1/trafficjam](http://localhost:8090/api/v1/trafficjam)
+
+
+## Uses
+
+### Programming
+
+- Golang
+- Gorilla mux
+
+### Graphics
+
+The logo is a composite of two very nice icons:
+
+- Jam icon by [icon king1](https://freeicons.io/profile/3) on [freeicons.io](https://freeicons.io)
+  
+  Changes: removed cherry
+- Car icon by [Raj Dev](https://freeicons.io/profile/714) on [freeicons.io](https://freeicons.io)
+  
+  Changes: changed color, placed above each other
+                                
+                                
