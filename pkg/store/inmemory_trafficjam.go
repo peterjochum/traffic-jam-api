@@ -60,3 +60,8 @@ func (i InMemoryTrafficJamStore) ListTrafficJams() []models.TrafficJam {
 	}
 	return jamList
 }
+
+// Total returns the number of jams in the store
+func (i InMemoryTrafficJamStore) Total() int64 {
+	return int64(len(i.jams))
+}

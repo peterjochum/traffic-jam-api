@@ -2,9 +2,10 @@ package swagger
 
 import (
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/peterjochum/traffic-jam-api/internal/app"
@@ -15,6 +16,20 @@ import (
 )
 
 const trafficJamAPIRoot = "/api/v1/trafficjam/"
+
+func getTestTrafficJamBody(id int) string {
+	switch id {
+	case 1:
+		// this jam is inserted by the SeedTrafficJamStore function
+		return "{\"id\":1,\"longitude\":1.12,\"latitude\":2.13,\"durationInSeconds\":15}\n"
+	case 4:
+		// new traffic jam
+		return "{\"id\":4,\"longitude\":1.15,\"latitude\":2.15,\"durationInSeconds\":60}\n"
+	default:
+		return ""
+	}
+
+}
 
 func TestGetAllTrafficJams(t *testing.T) {
 	app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
@@ -77,16 +92,18 @@ func TestDeleteTrafficJam(t *testing.T) {
 }
 
 func TestAddTrafficJam(t *testing.T) {
+	msgMalformedBody := "could not parse trafficjam from request body"
 	cases := []struct {
 		name        string
-		body        io.Reader
+		body        string
 		eResultCode int
 		eMessage    string
+		totalJams   int64
 	}{
-		{"empty body", nil, 400, "could not parse trafficjam from request body"},
-		// TODO: Test malformed body
-		// TODO: Test object exists
-		// TODO: Test success
+		{"empty body", "", http.StatusBadRequest, msgMalformedBody, 3},
+		{"malformed body", "malformed", http.StatusBadRequest, msgMalformedBody, 3},
+		{"object exists", getTestTrafficJamBody(1), http.StatusUnprocessableEntity, "traffic jam 1 already exists", 3},
+		{"successful add", getTestTrafficJamBody(4), http.StatusOK, "success", 4},
 	}
 
 	for _, test := range cases {
@@ -95,7 +112,8 @@ func TestAddTrafficJam(t *testing.T) {
 			store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(AddTrafficJam)
-			req := httptest.NewRequest("POST", trafficJamAPIRoot, nil)
+			bodyReader := strings.NewReader(test.body)
+			req := httptest.NewRequest("POST", trafficJamAPIRoot, bodyReader)
 			handler.ServeHTTP(rr, req)
 
 			if rr.Code != test.eResultCode {
@@ -107,19 +125,58 @@ func TestAddTrafficJam(t *testing.T) {
 				t.Errorf("Expected response \"%s\" but got \"%s\"",
 					test.eMessage, rr.Body.String())
 			}
+
+			if test.totalJams != app.GlobalTrafficJamStore.Total() {
+				t.Errorf("expected %d jams but got %d", test.totalJams, app.GlobalTrafficJamStore.Total())
+			}
+
 		})
 	}
 
 }
 
 func TestGetTrafficJam(t *testing.T) {
+	app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
+	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
+	handler := http.HandlerFunc(GetTrafficJam)
+
+	testcases := []struct {
+		name           string
+		id             string
+		expectedStatus int
+		body           string
+	}{
+		{name: "nonexisting", id: "99", expectedStatus: http.StatusNotFound, body: "object not found"},
+		{name: "wrongid", id: "abcd", expectedStatus: http.StatusBadRequest, body: "unable to parse id"},
+		{name: "existing", id: "1", expectedStatus: http.StatusOK, body: getTestTrafficJamBody(1)},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			rr := httptest.NewRecorder()
+			target := fmt.Sprintf("%s%s", trafficJamAPIRoot, tc.id)
+			req := httptest.NewRequest("GET", target, nil)
+
+			// Fake the parameter parsing
+			vars := map[string]string{
+				"id": tc.id,
+			}
+
+			req = mux.SetURLVars(req, vars)
+			handler.ServeHTTP(rr, req)
+
+			if rr.Code != tc.expectedStatus {
+				t.Errorf("got status %d, expected %d",
+					rr.Code, tc.expectedStatus)
+			}
+
+			if strings.Compare(rr.Body.String(), tc.body) != 0 {
+				t.Errorf("expected body:\n%s\ngot:\n%s",
+					tc.body, rr.Body.String())
+			}
+		})
+	}
 
 }
 
 func TestPutTrafficJam(t *testing.T) {
-
-}
-
-func TestIndex(t *testing.T) {
-
 }
