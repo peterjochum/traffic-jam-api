@@ -17,6 +17,13 @@ import (
 
 const trafficJamAPIRoot = "/api/v1/trafficjam/"
 
+type apiTestCase struct {
+	name           string
+	id             string
+	expectedStatus int
+	body           string
+}
+
 func getTestTrafficJamBody(id int) string {
 	switch id {
 	case 1:
@@ -140,12 +147,7 @@ func TestGetTrafficJam(t *testing.T) {
 	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
 	handler := http.HandlerFunc(GetTrafficJam)
 
-	testcases := []struct {
-		name           string
-		id             string
-		expectedStatus int
-		body           string
-	}{
+	testcases := []apiTestCase{
 		{name: "nonexisting", id: "99", expectedStatus: http.StatusNotFound, body: "object not found"},
 		{name: "wrongid", id: "abcd", expectedStatus: http.StatusBadRequest, body: "unable to parse id"},
 		{name: "existing", id: "1", expectedStatus: http.StatusOK, body: getTestTrafficJamBody(1)},
@@ -179,4 +181,38 @@ func TestGetTrafficJam(t *testing.T) {
 }
 
 func TestPutTrafficJam(t *testing.T) {
+	app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
+	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
+
+	handler := http.HandlerFunc(PutTrafficJam)
+	updatedJam := getTestTrafficJamBody(1)
+
+	testCases := []apiTestCase{
+		{"bad id", "abc", http.StatusBadRequest, ""},
+		{"nonexisting jam", "4", http.StatusNotFound, getTestTrafficJamBody(4)},
+		{"invalid body", "1", http.StatusBadRequest, "{:sdfsdf:SDFsdf}"},
+		{"success", "1", http.StatusOK, updatedJam},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			rr := httptest.NewRecorder()
+			target := fmt.Sprintf("%s%s", trafficJamAPIRoot, tc.id)
+			bodyReader := strings.NewReader(tc.body)
+			req := httptest.NewRequest("PUT", target, bodyReader)
+			// Fake the parameter parsing
+			vars := map[string]string{
+				"id": tc.id,
+			}
+			req = mux.SetURLVars(req, vars)
+
+			handler.ServeHTTP(rr, req)
+
+			if tc.expectedStatus != rr.Code {
+				t.Errorf("expected code %d, got %d",
+					tc.expectedStatus, rr.Code)
+			}
+		})
+	}
+
 }
