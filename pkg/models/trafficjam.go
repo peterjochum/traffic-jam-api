@@ -3,7 +3,7 @@ package models
 
 // TrafficJam stores information of a traffic problem at a specific location
 type TrafficJam struct {
-	ID                int64   `json:"id"`
+	ID                int64   `json:"id,omitempty"`
 	Longitude         float64 `json:"longitude"`
 	Latitude          float64 `json:"latitude"`
 	DurationInSeconds int32   `json:"durationInSeconds"`
