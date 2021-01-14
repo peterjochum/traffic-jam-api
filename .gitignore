@@ -8,3 +8,7 @@
 # Executables
 traffic-jam-api
 traffic-jam-api.exe
+cc-test-reporter
+
+# coverage
+c.out

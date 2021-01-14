@@ -21,15 +21,19 @@ func getID(r *http.Request) (int64, error) {
 	return strconv.ParseInt(vars["id"], 10, 64)
 }
 
+func decodeTrafficJamFromRequest(r *http.Request) (*models.TrafficJam, error) {
+	var jam models.TrafficJam
+	err := json.NewDecoder(r.Body).Decode(&jam)
+	return &jam, err
+}
+
 // AddTrafficJam adds a new traffic jam to the store
 func AddTrafficJam(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	var jam models.TrafficJam
-	err := json.NewDecoder(r.Body).Decode(&jam)
+	jam, err := decodeTrafficJamFromRequest(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("could not parse trafficjam from request body"))
+		_, _ = w.Write([]byte("could not parse traffic jam from request body"))
 		return
 	}
 
@@ -42,7 +46,7 @@ func AddTrafficJam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: check if failing here is possible
-	_ = app.GlobalTrafficJamStore.AddTrafficJam(jam)
+	_ = app.GlobalTrafficJamStore.AddTrafficJam(*jam)
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte("success"))
 }
@@ -102,7 +106,38 @@ func GetTrafficJam(w http.ResponseWriter, r *http.Request) {
 }
 
 // PutTrafficJam updates the data of a TrafficJam
-func PutTrafficJam(w http.ResponseWriter, _ *http.Request) {
+func PutTrafficJam(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusNoContent)
+
+	// Get ID from request url
+	id, err := getID(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("unable to parse id"))
+		return
+	}
+
+	// Check for existing traffic jam
+	_, err = app.GlobalTrafficJamStore.GetTrafficJam(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+
+	// Decode body and update record
+	jam, err := decodeTrafficJamFromRequest(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("could not parse body"))
+		return
+	}
+
+	if err := app.GlobalTrafficJamStore.UpdateTrafficJam(id, *jam); err != nil {
+		// TODO: will never be reached as existence has been tested before
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("unable to update record, not found"))
+	}
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("ok"))
 }

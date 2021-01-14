@@ -1,1 +1,15 @@
-.git
+# env
+.env
+sample.env
+
+# IDE stuff
+.idea
+.vscode
+
+# Executables
+traffic-jam-api
+traffic-jam-api.exe
+cc-test-reporter
+
+# coverage
+c.out

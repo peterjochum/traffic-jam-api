@@ -17,6 +17,19 @@ import (
 
 const trafficJamAPIRoot = "/api/v1/trafficjam/"
 
+// APITestCase encapsulates test input/output
+type APITestCase struct {
+	name           string
+	id             string
+	expectedStatus int
+	body           string
+}
+
+type deleteAPITestCase struct {
+	APITestCase
+	expectedJamCount int64
+}
+
 func getTestTrafficJamBody(id int) string {
 	switch id {
 	case 1:
@@ -67,32 +80,62 @@ func TestGetAllTrafficJams(t *testing.T) {
 func TestDeleteTrafficJam(t *testing.T) {
 	app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
 	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
-
-	req := httptest.NewRequest("DELETE", trafficJamAPIRoot+"1", nil)
-	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(DeleteTrafficJam)
 
-	// Fake the parameter parsing
-	vars := map[string]string{
-		"id": "1",
+	testcases := []deleteAPITestCase{
+		{APITestCase: APITestCase{
+			name:           "nonexisting",
+			id:             "4",
+			expectedStatus: http.StatusNotFound,
+			body:           "",
+		}, expectedJamCount: 3},
+		{
+			APITestCase: APITestCase{
+				name:           "illegal id",
+				id:             "abc",
+				expectedStatus: http.StatusBadRequest,
+				body:           "",
+			},
+			expectedJamCount: 3,
+		},
+		{
+			APITestCase: APITestCase{
+				name:           "sucessful delete",
+				id:             "1",
+				expectedStatus: http.StatusOK,
+				body:           "",
+			},
+			expectedJamCount: 2,
+		},
 	}
-	req = mux.SetURLVars(req, vars)
-	handler.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Expected status %d", http.StatusOK)
-	}
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest("DELETE", trafficJamAPIRoot+tc.id, nil)
+			rr := httptest.NewRecorder()
 
-	remainingJams := app.GlobalTrafficJamStore.ListTrafficJams()
-	eJams := 2
-	aJams := len(remainingJams)
-	if aJams != eJams {
-		t.Errorf("Expected %d jams left, but there are %d", eJams, aJams)
+			// Fake the parameter parsing
+			vars := map[string]string{
+				"id": tc.id,
+			}
+			req = mux.SetURLVars(req, vars)
+			handler.ServeHTTP(rr, req)
+
+			if tc.expectedStatus != rr.Code {
+				t.Errorf("Expected status %d but got %d",
+					tc.expectedStatus, rr.Code)
+			}
+
+			if tc.expectedJamCount != app.GlobalTrafficJamStore.Total() {
+				t.Errorf("Expected %d jams left, but there are %d",
+					tc.expectedJamCount, app.GlobalTrafficJamStore.Total())
+			}
+		})
 	}
 }
 
 func TestAddTrafficJam(t *testing.T) {
-	msgMalformedBody := "could not parse trafficjam from request body"
+	msgMalformedBody := "could not parse traffic jam from request body"
 	cases := []struct {
 		name        string
 		body        string
@@ -140,12 +183,7 @@ func TestGetTrafficJam(t *testing.T) {
 	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
 	handler := http.HandlerFunc(GetTrafficJam)
 
-	testcases := []struct {
-		name           string
-		id             string
-		expectedStatus int
-		body           string
-	}{
+	testcases := []APITestCase{
 		{name: "nonexisting", id: "99", expectedStatus: http.StatusNotFound, body: "object not found"},
 		{name: "wrongid", id: "abcd", expectedStatus: http.StatusBadRequest, body: "unable to parse id"},
 		{name: "existing", id: "1", expectedStatus: http.StatusOK, body: getTestTrafficJamBody(1)},
@@ -179,4 +217,37 @@ func TestGetTrafficJam(t *testing.T) {
 }
 
 func TestPutTrafficJam(t *testing.T) {
+	app.GlobalTrafficJamStore = store.NewInMemoryTrafficJamStore()
+	store.SeedTrafficJamStore(app.GlobalTrafficJamStore)
+
+	handler := http.HandlerFunc(PutTrafficJam)
+	updatedJam := getTestTrafficJamBody(1)
+
+	testCases := []APITestCase{
+		{"bad id", "abc", http.StatusBadRequest, ""},
+		{"nonexisting jam", "4", http.StatusNotFound, getTestTrafficJamBody(4)},
+		{"invalid body", "1", http.StatusBadRequest, "{:sdfsdf:SDFsdf}"},
+		{"success", "1", http.StatusOK, updatedJam},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			rr := httptest.NewRecorder()
+			target := fmt.Sprintf("%s%s", trafficJamAPIRoot, tc.id)
+			bodyReader := strings.NewReader(tc.body)
+			req := httptest.NewRequest("PUT", target, bodyReader)
+			// Fake the parameter parsing
+			vars := map[string]string{
+				"id": tc.id,
+			}
+			req = mux.SetURLVars(req, vars)
+
+			handler.ServeHTTP(rr, req)
+
+			if tc.expectedStatus != rr.Code {
+				t.Errorf("expected code %d, got %d",
+					tc.expectedStatus, rr.Code)
+			}
+		})
+	}
 }

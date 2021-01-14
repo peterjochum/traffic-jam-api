@@ -3,14 +3,14 @@ openapi: 3.0.1
 servers:
   # Added by API Auto Mocking Plugin
   - description: localhost (what is this for?)
-    url: https://localhost:44377/api/v1
+    url: https://localhost:8090/api/v1
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/peterjochum/traffic-jam_api/1.0.0
+    url: https://virtserver.swaggerhub.com/peterjochum/traffic-jam_api/1.1.0
 
 info:
   title: Traffic Jam API
   description: API to manage traffic jams
-  version: 1.0.0
+  version: 1.1.0
 
 paths:
   # TODO: Add a search/aggregation by area, it has to
@@ -22,38 +22,51 @@ paths:
       operationId: getAllTrafficJams
       responses:
         "200":
-          description: "OK"
+          $ref: "#/components/responses/GenericOk"
     post:
       summary: Create a new traffic jam report
       operationId: addTrafficJam
       requestBody:
         $ref: "#/components/requestBodies/TrafficJam"
       responses:
-        "400":
+        400:
           $ref: "#/components/responses/TrafficJamBadRequest"
+        422:
+          $ref: "#/components/responses/TrafficJamAlreadyExists"
+        200:
+          $ref: "#/components/responses/GenericOk"
+  /trafficjam/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of traffic jam to return
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      summary: Return traffic jam by {id}
+      operationId: getTrafficJam
+      responses:
+        200:
+          $ref: "#/components/responses/GenericOk"
+        400:
+          $ref: "#/components/responses/TrafficJamCannotParseId"
+        404:
+          $ref: "#/components/responses/TrafficJamNotFound"
     put:
       summary: Update traffic jam report
       operationId: putTrafficJam
       requestBody:
         $ref: "#/components/requestBodies/TrafficJam"
       responses:
-        "404":
+        200:
+          $ref: "#/components/responses/GenericOk"
+        400:
+          $ref: "#/components/responses/TrafficJamBadRequest"
+        404:
           $ref: "#/components/responses/TrafficJamNotFound"
-  "/trafficjam/{id}":
-    get:
-      summary: Return traffic jam by {id}
-      operationId: getTrafficJam
-      parameters:
-        - name: id
-          in: path
-          description: ID of traffic jam to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "404":
-          $ref: "#/components/responses/TrafficJamNotFound"
+
     delete:
       summary: delete traffic jam with {id}
       operationId: deleteTrafficJam
@@ -66,7 +79,10 @@ paths:
             type: integer
             format: int64
       responses:
-        "404":
+        200:
+          $ref: "#/components/responses/GenericOk"
+
+        404:
           $ref: "#/components/responses/TrafficJamNotFound"
 
 components:
@@ -74,7 +90,6 @@ components:
     TrafficJam:
       type: object
       required:
-        - id
         - longitude
         - latitude
         - durationInSeconds
@@ -102,8 +117,15 @@ components:
             $ref: "#/components/schemas/TrafficJam"
       description: Traffic jam that needs to be added to the store
       required: true
+
   responses:
+    GenericOk:
+      description: ok
+    TrafficJamAlreadyExists:
+      description: Traffic jam already exists
+    TrafficJamCannotParseId:
+      description: unable to parse id
     TrafficJamNotFound:
-      description: traffic jam was not found
+      description: Traffic jam was not found
     TrafficJamBadRequest:
-      description: malformed request - included all required fields?
+      description: Malformed request - included all required fields?
