@@ -84,7 +84,7 @@ var routes = Routes{
 	Route{
 		"PutTrafficJam",
 		strings.ToUpper("Put"),
-		"/api/v1/trafficjam",
+		"/api/v1/trafficjam/{id}",
 		PutTrafficJam,
 	},
 }
