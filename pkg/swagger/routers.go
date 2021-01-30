@@ -27,6 +27,7 @@ func NewRouter() *mux.Router {
 		var handler http.Handler
 		handler = route.HandlerFunc
 		handler = Logger(handler, route.Name)
+		handler = CorsHeaderSetter(handler, "*")
 
 		router.
 			Methods(route.Method).
@@ -34,7 +35,6 @@ func NewRouter() *mux.Router {
 			Name(route.Name).
 			Handler(handler)
 	}
-
 	return router
 }
 
