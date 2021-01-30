@@ -20,3 +20,12 @@ func Logger(inner http.Handler, name string) http.Handler {
 		)
 	})
 }
+
+// CorsHeaderSetter middleware sets the Access-Control-Allow-Origin header and
+// returns the handler
+func CorsHeaderSetter(inner http.Handler, origin string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		inner.ServeHTTP(w, r)
+	})
+}

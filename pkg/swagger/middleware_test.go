@@ -24,3 +24,16 @@ func TestLogger(t *testing.T) {
 
 	// NTH: check the logged data
 }
+
+func TestCorsHeaderSetter(t *testing.T) {
+	handler := http.HandlerFunc(testHandler)
+	testOrigin := "*"
+	handlerWithCors := CorsHeaderSetter(handler, testOrigin)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/", nil)
+	handlerWithCors.ServeHTTP(rr, req)
+
+	if rr.Header().Get("Access-Control-Allow-Origin") != testOrigin {
+		t.Errorf("access control header missing on request")
+	}
+}
